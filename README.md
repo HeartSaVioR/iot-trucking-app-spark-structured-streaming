@@ -40,7 +40,7 @@ $KAFKA_HOME/bin/kafka-topics.sh --create --topic trucking_app_result \
 
 > (optional) Create and set up checkpoint directory
 
-...
+You would like to set up directory for checkpointing. It could be either local directory if you plan to run the app in local environment, or HDFS-like remote directory if you plan to run the app in cluster.
 
 > Generate Trucking events and ingest to kafka topics
 
