@@ -22,7 +22,7 @@ object IotTruckingAppMovingAggregationsOnSpeed {
     import ss.implicits._
 
     val speedEventDf: DataFrame = EventsDataSource.getTruckSpeedEventDf(ss, brokers,
-      conf.geoEventsTopic())
+      conf.speedEventsTopic())
 
     speedEventDf.printSchema()
 
