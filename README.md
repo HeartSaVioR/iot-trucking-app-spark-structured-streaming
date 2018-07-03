@@ -74,6 +74,6 @@ $SPARK_HOME/bin/spark-submit \
 --checkpoint /tmp/apps/iot_trucking_app_joined_abnormal_events/checkpoints \
 --geo-events-topic truck_events_stream \
 --speed-events-topic truck_speed_events_stream \
---query-status-topic app_query_progress \
---output-topic iot_trucking_app_joined_abnormal_events_result
+--query-status-topic trucking_app_query_progress \
+--output-topic trucking_app_result
 ```
