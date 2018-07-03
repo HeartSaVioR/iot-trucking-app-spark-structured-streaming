@@ -59,7 +59,7 @@ ALL_STREAMS \
 NONSECURE &
 ```
 
-> Run application
+> Run application (`IotTruckingAppJoinedAbnormalEvents` app for example)
 
 ```
 $SPARK_HOME/bin/spark-submit \
