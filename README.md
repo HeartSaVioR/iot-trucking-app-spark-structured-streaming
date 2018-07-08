@@ -77,3 +77,6 @@ $SPARK_HOME/bin/spark-submit \
 --query-status-topic trucking_app_query_progress \
 --output-topic trucking_app_result
 ```
+
+While running you can query from Kafka topic you provided to `query-status-topic` to analyze the progress of query. You can refer below link to see couple of queries which you might feel useful for operational view.
+https://gist.github.com/HeartSaVioR/9d53b39052d4779a4c77e71ff7e989a3
