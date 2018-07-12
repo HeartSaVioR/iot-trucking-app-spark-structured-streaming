@@ -1,64 +1,45 @@
-package com.hortonworks.spark
+package com.hortonworks.spark.benchmark
 
-import com.hortonworks.spark.utils.{IotTruckingAppConf, QueryListenerSendingProgressToKafka}
-import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+import org.apache.spark.sql.{Column, SparkSession}
+import org.apache.spark.sql.functions.{avg, max, min}
 
-object BenchmarkMovingAggregations {
-  def main(args: Array[String]): Unit = {
-    import org.apache.spark.sql.SparkSession
+object BenchmarkQueryHelper {
 
-    val conf = new IotTruckingAppConf(args)
-    val brokers = conf.brokers()
-
-    val ss = SparkSession
-      .builder()
-      .appName("BenchmarkMovingAggregations")
-      .getOrCreate()
-
-    conf.queryStatusTopic.foreach(topic =>
-      ss.streams.addListener(new QueryListenerSendingProgressToKafka(brokers, topic)))
-
-    import org.apache.spark.sql.functions._
+  def createBunchOfColumnExpressions(ss: SparkSession, count: Int, numericExpr: String,
+                                     newColumnNamePrefix: String):
+  Seq[(String, Column)] = {
     import ss.implicits._
-
-    val df = ss.readStream
-      .format("rate")
-      .option("rowsPerSecond", "10000")
-      .load()
-
-    df.printSchema()
-
-    val outDf = df
-      .withWatermark("timestamp", "10 seconds")
-      .selectExpr(
-      "timestamp", "mod(value, 100) as mod", "value",
-        createCaseExprStr(50, "mod(CAST(RANDN(0) * 1000 as INTEGER), 50)") + " as word")
-      .groupBy(
-        window($"timestamp", "1 minute", "10 seconds"),
-        $"mod", $"word")
-      .agg(max("value").as("max_value"), min("value").as("min_value"), avg("value").as("avg_value"))
-
-    val query = outDf
-      .writeStream
-      .format("memory")
-      .option("checkpointLocation", conf.checkpoint())
-      .option("queryName", "movingAggregation")
-      .trigger(Trigger.ProcessingTime("10 seconds"))
-      .outputMode(OutputMode.Append())
-      .start()
-
-    query.awaitTermination()
+    (1 to count).map(i => (s"($numericExpr + $i) as $newColumnNamePrefix$i",
+      $"$newColumnNamePrefix$i"))
   }
 
-  def createCaseExprStr(cnt: Int, valExpr: String): String = {
-    require(words.length >= cnt)
+  def createBunchOfAggExpressions(columns: Seq[Column]): Seq[Column] = {
+    columns.flatMap(col => Seq(max(col), min(col), avg(col)))
+  }
+
+  def createCaseExprStr(valExpr: String, count: Int, lengthPerColumn: Int): String = {
+    def createStretchedWord(word: String): String = {
+      (1 to ((lengthPerColumn / word.length) + 1)).map(_ => word)
+        .mkString("").substring(0, lengthPerColumn)
+    }
+
+    require(words.length >= count)
+    require(lengthPerColumn % 10 == 0)
 
     var caseExpr = s"CASE $valExpr "
-    words.take(cnt).zipWithIndex.foreach {
+    words
+      .take(count - 1)
+      .map(createStretchedWord)
+      .zipWithIndex.foreach {
       case (word, idx) => caseExpr += s"WHEN $idx THEN '$word' "
     }
 
-    caseExpr += "ELSE 'unpleasant' END "
+    caseExpr += words
+      .drop(count - 1)
+      .take(1)
+      .map(createStretchedWord)
+      .map(word => s"ELSE '$word' END ")
+      .last
 
     caseExpr
   }
@@ -163,6 +144,7 @@ object BenchmarkMovingAggregations {
     "mastermind",
     "withdrawal",
     "goalkeeper",
-    "first-hand")
+    "first-hand",
+    "unpleasant")
 
 }
