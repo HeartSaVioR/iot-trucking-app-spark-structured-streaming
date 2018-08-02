@@ -5,7 +5,7 @@ import java.io.{File, PrintWriter}
 import org.apache.commons.logging.LogFactory
 import org.apache.spark.sql.streaming.StreamingQueryListener
 
-class QueryListenerWriteProgressToFile(brokerServers: String, queryStatusFile: String) extends StreamingQueryListener {
+class QueryListenerWriteProgressToFile(queryStatusFile: String) extends StreamingQueryListener {
   val logger = LogFactory.getLog(classOf[QueryListenerWriteProgressToFile].getName)
   val writer = new PrintWriter(new File(queryStatusFile))
 

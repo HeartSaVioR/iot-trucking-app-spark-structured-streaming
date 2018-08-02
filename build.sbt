@@ -13,9 +13,9 @@ resolvers ++= List("Hortonworks Private Releases" at "http://nexus-private.horto
 // scallop is MIT licensed
 libraryDependencies += "org.rogach" %% "scallop" % "3.1.2"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.3.1.3.0.0.0-SNAPSHOT" % "provided"
-libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.3.1.3.0.0.0-SNAPSHOT" % "provided"
-libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % "2.3.1.3.0.0.0-SNAPSHOT" excludeAll(
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.4.0-SNAPSHOT" % "provided"
+libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0-SNAPSHOT" % "provided"
+libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % "2.4.0-SNAPSHOT" excludeAll(
   ExclusionRule(organization = "org.spark-project.spark", name = "unused"),
   ExclusionRule(organization = "org.apache.spark", name = "spark-streaming"),
   ExclusionRule(organization = "org.apache.kafka", name = "kafka-clients"),
