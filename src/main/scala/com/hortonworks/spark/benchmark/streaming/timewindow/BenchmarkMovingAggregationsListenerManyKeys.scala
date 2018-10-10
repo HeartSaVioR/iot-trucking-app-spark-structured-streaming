@@ -1,5 +1,6 @@
-package com.hortonworks.spark.benchmark
+package com.hortonworks.spark.benchmark.streaming.timewindow
 
+import com.hortonworks.spark.benchmark.BenchmarkQueryHelper
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 

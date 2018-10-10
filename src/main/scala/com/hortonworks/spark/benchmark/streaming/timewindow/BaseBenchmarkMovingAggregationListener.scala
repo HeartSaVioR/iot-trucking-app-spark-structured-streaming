@@ -1,5 +1,6 @@
-package com.hortonworks.spark.benchmark
+package com.hortonworks.spark.benchmark.streaming.timewindow
 
+import com.hortonworks.spark.benchmark.IotTruckingBenchmarkAppConf
 import com.hortonworks.spark.utils.QueryListenerWriteProgressToFile
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.{DataFrame, SparkSession}

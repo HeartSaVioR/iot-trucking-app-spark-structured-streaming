@@ -13,9 +13,13 @@ resolvers ++= List("Hortonworks Private Releases" at "http://nexus-private.horto
 // scallop is MIT licensed
 libraryDependencies += "org.rogach" %% "scallop" % "3.1.2"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.4.0-SNAPSHOT" % "provided"
-libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % "2.4.0-SNAPSHOT" % "provided"
-libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % "2.4.0-SNAPSHOT" excludeAll(
+val sparkVersion = "3.0.0-SNAPSHOT"
+val scopeForSparkArtifacts = "provided"
+//val scopeForSparkArtifacts = "compile"
+
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % sparkVersion % scopeForSparkArtifacts
+libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % sparkVersion % scopeForSparkArtifacts
+libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % sparkVersion excludeAll(
   ExclusionRule(organization = "org.spark-project.spark", name = "unused"),
   ExclusionRule(organization = "org.apache.spark", name = "spark-streaming"),
   ExclusionRule(organization = "org.apache.kafka", name = "kafka-clients"),
@@ -33,12 +37,18 @@ assemblyMergeStrategy in assembly := {
   case PathList("com", "esotericsoftware", xs @ _*) => MergeStrategy.last
   case PathList("com", "codahale", xs @ _*) => MergeStrategy.last
   case PathList("com", "yammer", xs @ _*) => MergeStrategy.last
+    // start -- Spark 3.0.0-SNAPSHOT...
+  case PathList("org", "aopalliance", xs @ _*) => MergeStrategy.last
+  case PathList("javax", "inject", xs @ _*) => MergeStrategy.last
+    // end -- Spark 3.0.0-SNAPSHOT...
   case "about.html" => MergeStrategy.rename
   case "META-INF/ECLIPSEF.RSA" => MergeStrategy.last
   case "META-INF/mailcap" => MergeStrategy.last
   case "META-INF/mimetypes.default" => MergeStrategy.last
   case "plugin.properties" => MergeStrategy.last
   case "log4j.properties" => MergeStrategy.last
+    // below is due to Apache Arrow...
+  case "git.properties" => MergeStrategy.discard
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
