@@ -10,6 +10,7 @@ object IotTruckingAppDistinctPairDriverAndTruck {
 
     val conf = new IotTruckingAppConf(args)
     val brokers = conf.brokers()
+    val failOnDataLoss = conf.failOnDataLoss()
 
     val ss = SparkSession
       .builder()
@@ -20,7 +21,7 @@ object IotTruckingAppDistinctPairDriverAndTruck {
       ss.streams.addListener(new QueryListenerSendingProgressToKafka(brokers, topic)))
 
     val speedEventDf: DataFrame = EventsDataSource.getTruckSpeedEventDf(ss, brokers,
-      conf.speedEventsTopic())
+      conf.speedEventsTopic(), failOnDataLoss)
 
     speedEventDf.printSchema()
 

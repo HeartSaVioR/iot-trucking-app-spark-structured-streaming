@@ -7,7 +7,8 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 object EventsDataSource {
 
-  def getTruckSpeedEventDf(ss: SparkSession, bootstrapServers: String, topic: String): Dataset[Row] = {
+  def getTruckSpeedEventDf(ss: SparkSession, bootstrapServers: String, topic: String,
+                           failOnDataLoss: Boolean): Dataset[Row] = {
     import ss.implicits._
 
     val speedEventDf = ss
@@ -16,6 +17,7 @@ object EventsDataSource {
       .option("kafka.bootstrap.servers", bootstrapServers)
       .option("subscribe", topic)
       .option("startingOffsets", "latest")
+      .option("failOnDataLoss", failOnDataLoss)
       .load()
 
     val speedSchema = StructType(Seq(
@@ -37,7 +39,8 @@ object EventsDataSource {
       .withWatermark("eventTimestamp", "1 hour")
   }
 
-  def getTruckGeoEventDf(ss: SparkSession, bootstrapServers: String, topic: String): Dataset[Row] = {
+  def getTruckGeoEventDf(ss: SparkSession, bootstrapServers: String, topic: String,
+                         failOnDataLoss: Boolean): Dataset[Row] = {
     import ss.implicits._
 
     val geoEventDf = ss
@@ -46,6 +49,7 @@ object EventsDataSource {
       .option("kafka.bootstrap.servers", bootstrapServers)
       .option("subscribe", topic)
       .option("startingOffsets", "latest")
+      .option("failOnDataLoss", failOnDataLoss)
       .load()
 
     val geoSchema = StructType(Seq(

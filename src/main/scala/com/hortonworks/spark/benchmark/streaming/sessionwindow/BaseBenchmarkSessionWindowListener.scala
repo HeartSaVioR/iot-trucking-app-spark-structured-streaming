@@ -40,6 +40,12 @@ abstract class BaseBenchmarkSessionWindowListener(args: Array[String], appName: 
       .outputMode(outputMode)
       .start()
 
-    query.awaitTermination()
+    var terminated = false
+    while (!terminated) {
+      import org.apache.spark.sql.execution.debug._
+      terminated = query.awaitTermination(1000 * 60 * 2) // 2 mins
+      query.debugCodegen()
+    }
+
   }
 }

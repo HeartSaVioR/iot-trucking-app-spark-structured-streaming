@@ -14,6 +14,7 @@ object IotTruckingAppJoinedAbnormalEvents {
 
     val conf = new IotTruckingAppConf(args)
     val brokers = conf.brokers()
+    val failOnDataLoss = conf.failOnDataLoss()
 
     val ss = SparkSession
       .builder()
@@ -26,9 +27,9 @@ object IotTruckingAppJoinedAbnormalEvents {
     import ss.implicits._
 
     val geoEventDf: DataFrame = EventsDataSource.getTruckGeoEventDf(ss, brokers,
-      conf.geoEventsTopic())
+      conf.geoEventsTopic(), failOnDataLoss)
     val speedEventDf: DataFrame = EventsDataSource.getTruckSpeedEventDf(ss, brokers,
-      conf.speedEventsTopic())
+      conf.speedEventsTopic(), failOnDataLoss)
 
     geoEventDf.printSchema()
     speedEventDf.printSchema()

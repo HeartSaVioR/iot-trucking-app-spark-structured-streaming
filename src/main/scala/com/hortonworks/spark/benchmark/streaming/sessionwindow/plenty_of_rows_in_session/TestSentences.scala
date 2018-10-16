@@ -1,4 +1,4 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_rows_in_session
 
 object TestSentences {
 

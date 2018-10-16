@@ -1,8 +1,9 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_rows_in_session
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import com.hortonworks.spark.benchmark.streaming.sessionwindow.BaseBenchmarkSessionWindowListener
+import org.apache.spark.sql.functions.{count, session_window}
 import org.apache.spark.sql.streaming.OutputMode
-import org.apache.spark.sql.functions.{session_window, count}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 abstract class BaseBenchmarkSessionWindowListenerWordCountSessionFunction(args: Array[String],
                                                                           appName: String,

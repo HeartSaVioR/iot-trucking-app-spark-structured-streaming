@@ -11,6 +11,8 @@ class IotTruckingAppConf(arguments: Seq[String]) extends ScallopConf(arguments) 
   val queryStatusTopic = opt[String](name = "query-status-topic", required = false, default = Some(IotTruckingAppConf.DEFAULT_APP_QUERY_STATUS_TOPIC), noshort = true)
   val outputTopic = opt[String](name = "output-topic", required = true, noshort = true)
 
+  val failOnDataLoss = opt[Boolean](name = "fail-on-data-loss", required = true, noshort = true)
+
   verify()
 }
 

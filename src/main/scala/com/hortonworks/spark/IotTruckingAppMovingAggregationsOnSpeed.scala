@@ -10,6 +10,7 @@ object IotTruckingAppMovingAggregationsOnSpeed {
 
     val conf = new IotTruckingAppConf(args)
     val brokers = conf.brokers()
+    val failOnDataLoss = conf.failOnDataLoss()
 
     val ss = SparkSession
       .builder()
@@ -22,7 +23,7 @@ object IotTruckingAppMovingAggregationsOnSpeed {
     import ss.implicits._
 
     val speedEventDf: DataFrame = EventsDataSource.getTruckSpeedEventDf(ss, brokers,
-      conf.speedEventsTopic())
+      conf.speedEventsTopic(), failOnDataLoss)
 
     speedEventDf.printSchema()
 

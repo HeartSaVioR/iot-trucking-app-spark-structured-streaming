@@ -1,9 +1,10 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_rows_in_session
 
 import java.sql.Timestamp
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import com.hortonworks.spark.benchmark.streaming.sessionwindow._
 import org.apache.spark.sql.streaming.{GroupState, GroupStateTimeout, OutputMode}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 case class Event(sessionId: String, timestamp: Timestamp)
 
@@ -25,8 +26,8 @@ case class SessionUpdate(id: String,
 class BaseBenchmarkSessionWindowListenerWordCountMapGroupsWithStateUpdateMode(args: Array[String])
   extends BaseBenchmarkSessionWindowListener(
     args,
-    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode",
-    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode",
+    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfRowsInSession",
+    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfRowsInSession",
     OutputMode.Update()) {
 
   override def applyOperations(ss: SparkSession, df: DataFrame): DataFrame = {
