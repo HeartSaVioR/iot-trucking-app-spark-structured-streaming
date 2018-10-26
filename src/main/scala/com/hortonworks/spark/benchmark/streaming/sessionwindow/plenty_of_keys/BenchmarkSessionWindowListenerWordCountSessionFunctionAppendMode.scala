@@ -1,12 +1,12 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_sessions
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_keys
 
 import org.apache.spark.sql.streaming.OutputMode
 
 class BenchmarkSessionWindowListenerWordCountSessionFunctionAppendMode(args: Array[String])
   extends BaseBenchmarkSessionWindowListenerWordCountSessionFunction(
     args,
-    "SessionWindowWordCountAsSessionFunctionAppendMode_PlentyOfSessions",
-    "SessionWindowWordCountAsSessionFunctionAppendMode_PlentyOfSessions",
+    "SessionWindowWordCountAsSessionFunctionAppendMode_PlentyOfKeys",
+    "SessionWindowWordCountAsSessionFunctionAppendMode_PlentyOfKeys",
     OutputMode.Append())
 
 object BenchmarkSessionWindowListenerWordCountSessionFunctionAppendMode {

@@ -1,4 +1,4 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_sessions
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_keys
 
 import com.hortonworks.spark.benchmark.streaming.sessionwindow.BaseBenchmarkSessionWindowListener
 import org.apache.spark.sql.functions.{count, session_window}

@@ -1,4 +1,4 @@
-package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_sessions
+package com.hortonworks.spark.benchmark.streaming.sessionwindow.plenty_of_rows_in_session
 
 import java.sql.Timestamp
 
@@ -9,14 +9,14 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 case class Event(sessionId: String, timestamp: Timestamp)
 
 case class SessionInfo(numEvents: Int,
-                       startTimestampMs: Long,
-                       endTimestampMs: Long) {
+                       sessionStartTimestampMs: Long,
+                       sessionEndTimestampMs: Long) {
 
-  /** Duration of the session, between the first and last events */
-  def durationMs: Long = endTimestampMs - startTimestampMs
+  /** Duration of the session, between the first and last events + session gap */
+  def durationMs: Long = sessionEndTimestampMs - sessionStartTimestampMs
 }
 
-case class SessionUpdate(id: Long,
+case class SessionUpdate(id: String,
                          startTimestampMs: Long,
                          endTimestampMs: Long,
                          durationMs: Long,
@@ -26,18 +26,24 @@ case class SessionUpdate(id: Long,
 class BaseBenchmarkSessionWindowListenerWordCountMapGroupsWithStateUpdateMode(args: Array[String])
   extends BaseBenchmarkSessionWindowListener(
     args,
-    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfSessions",
-    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfSessions",
+    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfRowsInSession",
+    "SessionWindowWordCountAsMapGroupsWithStateUpdateMode_PlentyOfRowsInSession",
     OutputMode.Update()) {
 
   override def applyOperations(ss: SparkSession, df: DataFrame): DataFrame = {
     import ss.implicits._
 
+    // Split the lines into words, treat words as sessionId of events
     // NOTE: in order to apply watermark we can't map typed columns to an object
     val events = df
-      .selectExpr("CAST(value / 100 AS INTEGER) AS sessionId", "CAST(timestamp AS TIMESTAMP) AS eventTime")
+      .select($"value", $"timestamp")
       .as[(Long, Timestamp)]
-      .withWatermark("eventTime", "10 seconds")
+      .flatMap { case (value, timestamp) =>
+        TestSentences.SENTENCES.apply((value % 10).intValue()).split(" ")
+          .map { word => (word, timestamp) }
+      }
+      .as[(String, Timestamp)]
+      .withWatermark("_2", "10 seconds")
 
     // Sessionize the events. Track number of events, start and end timestamps of session, and
     // and report session updates.
@@ -45,12 +51,12 @@ class BaseBenchmarkSessionWindowListenerWordCountMapGroupsWithStateUpdateMode(ar
       .groupByKey(event => event._1)
       .mapGroupsWithState[SessionInfo, SessionUpdate](GroupStateTimeout.EventTimeTimeout()) {
 
-      case (sessionId: Long, events: Iterator[(Long, Timestamp)], state: GroupState[SessionInfo]) =>
+      case (sessionId: String, events: Iterator[(String, Timestamp)], state: GroupState[SessionInfo]) =>
 
         // If timed out, then remove session and send final update
         if (state.hasTimedOut) {
           val finalUpdate =
-            SessionUpdate(sessionId, state.get.startTimestampMs, state.get.endTimestampMs,
+            SessionUpdate(sessionId, state.get.sessionStartTimestampMs, state.get.sessionEndTimestampMs,
               state.get.durationMs, state.get.numEvents, expired = true)
           state.remove()
           finalUpdate
@@ -62,8 +68,8 @@ class BaseBenchmarkSessionWindowListenerWordCountMapGroupsWithStateUpdateMode(ar
             val oldSession = state.get
             SessionInfo(
               oldSession.numEvents + timestamps.size,
-              oldSession.startTimestampMs,
-              math.max(oldSession.endTimestampMs, timestamps.max))
+              oldSession.sessionStartTimestampMs,
+              math.max(oldSession.sessionEndTimestampMs, timestamps.max))
           } else {
             SessionInfo(timestamps.size, timestamps.min, timestamps.max)
           }
@@ -71,7 +77,7 @@ class BaseBenchmarkSessionWindowListenerWordCountMapGroupsWithStateUpdateMode(ar
 
           // Set timeout such that the session will be expired if no data received for 10 seconds
           state.setTimeoutTimestamp(timestamps.max, "10 seconds")
-          SessionUpdate(sessionId, state.get.startTimestampMs, state.get.endTimestampMs,
+          SessionUpdate(sessionId, state.get.sessionStartTimestampMs, state.get.sessionEndTimestampMs,
             state.get.durationMs, state.get.numEvents, expired = false)
         }
     }
