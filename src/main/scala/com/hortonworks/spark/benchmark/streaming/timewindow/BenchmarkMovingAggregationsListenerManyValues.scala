@@ -6,8 +6,8 @@ import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 import scala.collection.mutable
 
-class BenchmarkMovingAggregationsListenerManyValues(args: Array[String])
-  extends BaseBenchmarkMovingAggregationListener(args,
+class BenchmarkMovingAggregationsListenerManyValues(conf: TimeWindowBenchmarkAppConf)
+  extends BaseBenchmarkMovingAggregationListener(conf,
     "BenchmarkMovingAggregationsListenerToFsManyValues", "movingAggregationManyValues") {
 
   override def applyOperations(ss: SparkSession, df: DataFrame): DataFrame = {
@@ -34,12 +34,4 @@ class BenchmarkMovingAggregationsListenerManyValues(args: Array[String])
       .groupBy(groupByExprs: _*)
       .agg(aggExprs.take(1).last, aggExprs.drop(1): _*)
   }
-}
-
-
-object BenchmarkMovingAggregationsListenerManyValues {
-  def main(args: Array[String]): Unit = {
-    new BenchmarkMovingAggregationsListenerManyValues(args).runBenchmark()
-  }
-
 }

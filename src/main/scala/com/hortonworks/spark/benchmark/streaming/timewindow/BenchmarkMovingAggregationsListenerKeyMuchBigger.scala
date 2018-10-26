@@ -4,9 +4,11 @@ import com.hortonworks.spark.benchmark.BenchmarkQueryHelper
 import org.apache.spark.sql.functions.{avg, max, min, window}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class BenchmarkMovingAggregationsListenerKeyMuchBigger(args: Array[String])
-  extends BaseBenchmarkMovingAggregationListener(args,
-    "BenchmarkMovingAggregationsListenerToFsKeyMuchBigger", "movingAggregationKeyMuchBigger") {
+class BenchmarkMovingAggregationsListenerKeyMuchBigger(conf: TimeWindowBenchmarkAppConf)
+  extends BaseBenchmarkMovingAggregationListener(
+    conf,
+    "BenchmarkMovingAggregationsListenerToFsKeyMuchBigger",
+    "movingAggregationKeyMuchBigger") {
 
   override def applyOperations(ss: SparkSession, df: DataFrame): DataFrame = {
     import ss.implicits._
@@ -21,11 +23,4 @@ class BenchmarkMovingAggregationsListenerKeyMuchBigger(args: Array[String])
         $"mod", $"word")
       .agg(max("value").as("max_value"), min("value").as("min_value"), avg("value").as("avg_value"))
   }
-}
-
-object BenchmarkMovingAggregationsListenerKeyMuchBigger {
-  def main(args: Array[String]): Unit = {
-    new BenchmarkMovingAggregationsListenerKeyMuchBigger(args).runBenchmark()
-  }
-
 }

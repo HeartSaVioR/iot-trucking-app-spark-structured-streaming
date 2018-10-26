@@ -4,8 +4,8 @@ import com.hortonworks.spark.benchmark.BenchmarkQueryHelper
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class BenchmarkMovingAggregationsListenerValueMuchBigger(args: Array[String])
-  extends BaseBenchmarkMovingAggregationListener(args,
+class BenchmarkMovingAggregationsListenerValueMuchBigger(conf: TimeWindowBenchmarkAppConf)
+  extends BaseBenchmarkMovingAggregationListener(conf,
     "BenchmarkMovingAggregationsListenerToFsValueMuchBigger", "movingAggregationValueMuchBigger") {
 
   override def applyOperations(ss: SparkSession, df: DataFrame): DataFrame = {
@@ -22,11 +22,4 @@ class BenchmarkMovingAggregationsListenerValueMuchBigger(args: Array[String])
       .agg(max("value").as("max_value"), min("value").as("min_value"), avg("value").as("avg_value"),
         last("word").as("word_last"))
   }
-}
-
-object BenchmarkMovingAggregationsListenerValueMuchBigger {
-  def main(args: Array[String]): Unit = {
-    new BenchmarkMovingAggregationsListenerValueMuchBigger(args).runBenchmark()
-  }
-
 }

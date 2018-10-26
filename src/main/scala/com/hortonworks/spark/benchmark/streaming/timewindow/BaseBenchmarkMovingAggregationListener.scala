@@ -1,17 +1,15 @@
 package com.hortonworks.spark.benchmark.streaming.timewindow
 
-import com.hortonworks.spark.benchmark.IotTruckingBenchmarkAppConf
 import com.hortonworks.spark.utils.QueryListenerWriteProgressToFile
-import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-abstract class BaseBenchmarkMovingAggregationListener(args: Array[String], appName: String,
-                                                      queryName: String) {
+abstract class BaseBenchmarkMovingAggregationListener(conf: TimeWindowBenchmarkAppConf,
+                                                      appName: String, queryName: String) {
 
   def applyOperations(ss: SparkSession, df: DataFrame): DataFrame
 
   def runBenchmark(): Unit = {
-    val conf = new IotTruckingBenchmarkAppConf(args)
     val queryStatusFile = conf.queryStatusFile()
     val rateRowPerSecond = conf.rateRowPerSecond()
     val rateRampUpTimeSecond = conf.rateRampUpTimeSecond()
@@ -36,7 +34,7 @@ abstract class BaseBenchmarkMovingAggregationListener(args: Array[String], appNa
       .format("memory")
       .option("queryName", queryName)
       .trigger(Trigger.ProcessingTime("5 seconds"))
-      .outputMode(OutputMode.Append())
+      .outputMode(conf.getSparkOutputMode)
       .start()
 
     query.awaitTermination()

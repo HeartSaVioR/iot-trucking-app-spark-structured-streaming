@@ -1,17 +1,15 @@
 package com.hortonworks.spark.benchmark.streaming.sessionwindow
 
-import com.hortonworks.spark.benchmark.IotTruckingBenchmarkAppConf
 import com.hortonworks.spark.utils.QueryListenerWriteProgressToFile
-import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-abstract class BaseBenchmarkSessionWindowListener(args: Array[String], appName: String,
-                                                  queryName: String, outputMode: OutputMode) {
+abstract class BaseBenchmarkSessionWindowListener(conf: SessionWindowBenchmarkAppConf,
+                                                  appName: String, queryName: String) {
 
   def applyOperations(ss: SparkSession, df: DataFrame): DataFrame
 
   def runBenchmark(): Unit = {
-    val conf = new IotTruckingBenchmarkAppConf(args)
     val queryStatusFile = conf.queryStatusFile()
     val rateRowPerSecond = conf.rateRowPerSecond()
     val rateRampUpTimeSecond = conf.rateRampUpTimeSecond()
@@ -37,7 +35,7 @@ abstract class BaseBenchmarkSessionWindowListener(args: Array[String], appName: 
       .format("memory")
       .option("queryName", queryName)
       .trigger(Trigger.ProcessingTime("5 seconds"))
-      .outputMode(outputMode)
+      .outputMode(conf.getSparkOutputMode)
       .start()
 
     var terminated = false
