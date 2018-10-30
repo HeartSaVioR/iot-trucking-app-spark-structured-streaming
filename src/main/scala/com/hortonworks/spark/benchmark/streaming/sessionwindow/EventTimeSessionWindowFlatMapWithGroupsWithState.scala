@@ -116,7 +116,8 @@ object EventTimeSessionWindowFlatMapWithGroupsWithState {
                     event.sessionEndTimestampMs),
                   numEvents = session.numEvents + event.numEvents)
 
-                // we are going to replace previous session with new session, so previous session should be removed from updated sessions
+                // we are going to replace previous session with new session, so previous session
+                // should be removed from updated sessions
                 // same occurs below if statements
                 updatedSessions -= session
 
