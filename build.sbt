@@ -3,29 +3,27 @@ name := "iot-trucking-app-spark-structured-streaming"
 
 version := "0.1"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.10"
 
 resolvers += Resolver.mavenLocal
 resolvers ++= List("Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository")
-resolvers ++= List("Hortonworks Releases" at "http://repo.hortonworks.com/content/repositories/releases/", "Jetty Releases" at "http://repo.hortonworks.com/content/repositories/jetty-hadoop/")
-resolvers ++= List("Hortonworks Private Releases" at "http://nexus-private.hortonworks.com/nexus/content/groups/public/")
 
 // scallop is MIT licensed
 libraryDependencies += "org.rogach" %% "scallop" % "3.1.2"
 
-val sparkVersion = "3.0.0-SNAPSHOT"
+val sparkVersion = "3.2.0-PR-31570"
 val scopeForSparkArtifacts = "provided"
 //val scopeForSparkArtifacts = "compile"
 
-libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % sparkVersion % scopeForSparkArtifacts
-libraryDependencies += "org.apache.spark" % "spark-sql_2.11" % sparkVersion % scopeForSparkArtifacts
-libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.11" % sparkVersion excludeAll(
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.12" % sparkVersion % scopeForSparkArtifacts
+libraryDependencies += "org.apache.spark" % "spark-sql_2.12" % sparkVersion % scopeForSparkArtifacts
+libraryDependencies += "org.apache.spark" % "spark-sql-kafka-0-10_2.12" % sparkVersion excludeAll(
   ExclusionRule(organization = "org.spark-project.spark", name = "unused"),
   ExclusionRule(organization = "org.apache.spark", name = "spark-streaming"),
   ExclusionRule(organization = "org.apache.kafka", name = "kafka-clients"),
   ExclusionRule(organization = "org.apache.hadoop")
 )
-libraryDependencies += "org.apache.kafka" % "kafka-clients" % "0.10.2.1" excludeAll(
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.6.0" excludeAll(
   ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
   )
 
