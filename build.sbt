@@ -12,7 +12,7 @@ resolvers ++= List("Local Maven Repository" at "file:///" + Path.userHome.absolu
 libraryDependencies += "org.rogach" %% "scallop" % "3.1.2"
 
 val scalaVersionForMaven = "2.12"
-val sparkVersion = "3.0.0-SNAPSHOT"
+val sparkVersion = "3.0.1"
 val scopeForSparkArtifacts = "provided"
 
 libraryDependencies += "org.apache.spark" % s"spark-streaming_${scalaVersionForMaven}" % sparkVersion % scopeForSparkArtifacts
