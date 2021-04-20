@@ -1,6 +1,9 @@
 package com.hortonworks.spark.benchmark.streaming.timewindow
 
+import java.nio.file.Files
+
 import com.hortonworks.spark.utils.QueryListenerWriteProgressToFile
+
 import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -10,7 +13,6 @@ abstract class BaseBenchmarkMovingAggregationListener(conf: TimeWindowBenchmarkA
   def applyOperations(ss: SparkSession, df: DataFrame): DataFrame
 
   def runBenchmark(): Unit = {
-    val queryStatusFile = conf.queryStatusFile()
     val rateRowPerSecond = conf.rateRowPerSecond()
     val rateRampUpTimeSecond = conf.rateRampUpTimeSecond()
 
@@ -19,7 +21,9 @@ abstract class BaseBenchmarkMovingAggregationListener(conf: TimeWindowBenchmarkA
       .appName(appName)
       .getOrCreate()
 
-    ss.streams.addListener(new QueryListenerWriteProgressToFile(queryStatusFile))
+    conf.queryStatusFile.foreach { file =>
+      ss.streams.addListener(new QueryListenerWriteProgressToFile(file))
+    }
 
     val df = ss.readStream
       .format("rate")
@@ -29,13 +33,18 @@ abstract class BaseBenchmarkMovingAggregationListener(conf: TimeWindowBenchmarkA
 
     df.printSchema()
 
-    val query = applyOperations(ss, df)
+    var streamWriter = applyOperations(ss, df)
       .writeStream
-      .format("memory")
+      .format("console")
       .option("queryName", queryName)
       .trigger(Trigger.ProcessingTime("5 seconds"))
       .outputMode(conf.getSparkOutputMode)
-      .start()
+
+    conf.checkpointDirectory.foreach { chkDir =>
+      streamWriter = streamWriter.option("checkpointLocation", chkDir)
+    }
+
+    val query = streamWriter.start()
 
     query.awaitTermination()
   }

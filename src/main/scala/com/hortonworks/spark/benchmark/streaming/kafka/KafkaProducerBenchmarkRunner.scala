@@ -11,7 +11,6 @@ object KafkaProducerBenchmarkRunner {
   def runBenchmark(conf: KafkaProducerBenchmarkAppConf): Unit = {
     val appName = "kafka-producer-full-speed-benchmark"
 
-    val queryStatusFile = conf.queryStatusFile()
     val rateRowPerSecond = conf.rateRowPerSecond()
     val rateRampUpTimeSecond = conf.rateRampUpTimeSecond()
 
@@ -20,7 +19,9 @@ object KafkaProducerBenchmarkRunner {
       .appName(appName)
       .getOrCreate()
 
-    ss.streams.addListener(new QueryListenerWriteProgressToFile(queryStatusFile))
+    conf.queryStatusFile.foreach { file =>
+      ss.streams.addListener(new QueryListenerWriteProgressToFile(file))
+    }
 
     val df = ss.readStream
       .format("rate")
@@ -31,7 +32,8 @@ object KafkaProducerBenchmarkRunner {
 
     df.printSchema()
 
-    val tempPath = Files.createTempDirectory("ss-kafka-producer-benchmark")
+    val checkpointDir = conf.checkpointDirectory.getOrElse(
+      Files.createTempDirectory("ss-kafka-producer-benchmark").toFile.getAbsolutePath)
 
     val query = df
       .selectExpr("CAST(value as STRING) as value")
@@ -39,7 +41,7 @@ object KafkaProducerBenchmarkRunner {
       .format("kafka")
       .option("kafka.bootstrap.servers", conf.kafkaBootstrapServers())
       .option("topic", conf.kafkaOutputTopic())
-      .option("checkpointLocation", tempPath.toFile.getAbsolutePath)
+      .option("checkpointLocation", checkpointDir)
       .start()
 
     query.awaitTermination()
